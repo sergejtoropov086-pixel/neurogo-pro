@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroGo Pro — Маршруты</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: #0f0f0f; 
+      color: #f5f5f5; 
+      padding: 20px; 
+      max-width: 1200px; 
+      margin: 0 auto; 
+    }
+    .container { margin-top: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; font-size: 2rem; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: #aaa; }
+    input { 
+      width: 100%; 
+      padding: 12px; 
+      border-radius: 8px; 
+      border: 1px solid #333; 
+      background: #1a1a1a; 
+      color: white; 
+    }
+    button { 
+      width: 100%; 
+      padding: 12px; 
+      background: #3b82f6; 
+      color: white; 
+      border: none; 
+      border-radius: 8px; 
+      font-size: 1rem; 
+      cursor: pointer; 
+    }
+    button:hover { background: #2563eb; }
+    #map { 
+      height: 500px; 
+      border-radius: 12px; 
+      margin-top: 20px; 
+      display: none; 
+    }
+  </style>
+</head>
+<body>
+  <h1>🚀 NeuroGo Pro — Постройте маршрут</h1>
+  <div class="container">
+    <div id="form">
+      <div class="form-group">
+        <label for="from">📍 Откуда</label>
+        <input type="text" id="from" placeholder="Например: Москва, Красная площадь" />
+      </div>
+      <div class="form-group">
+        <label for="to">🎯 Куда</label>
+        <input type="text" id="to" placeholder="Например: Санкт-Петербург, Невский проспект" />
+      </div>
+      <button onclick="buildRoute()">Построить маршрут</button>
+    </div>
+    <div id="map"></div>
+  </div>
+
+  <!-- Yandex Maps API -->
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=2234f14e-a26e-42e7-b494-e6f8c0f9bc3b&lang=ru_RU" type="text/javascript"></script>
+  <script>
+    let myMap;
+    let myRoute;
+
+    function buildRoute() {
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      if (!from || !to) {
+        alert('Введите оба адреса');
+        return;
+      }
+
+      document.getElementById('form').style.display = 'none';
+      document.getElementById('map').style.display = 'block';
+
+      if (!myMap) {
+        myMap = new ymaps.Map('map', {
+          center: [37.6, 55.75],
+          zoom: 10
+        });
+      }
+
+      if (myRoute) {
+        myMap.geoObjects.remove(myRoute);
+      }
+
+      ymaps.route([from, to]).then(function (route) {
+        route.getPaths().options.set({ strokeColor: "#007AFF", strokeWidth: 6 });
+        myMap.geoObjects.add(route);
+        myRoute = route;
+        myMap.setBounds(route.getBounds(), { checkZoomRange: true });
+      }, function (error) {
+        alert('Ошибка: не удалось построить маршрут. Проверьте адреса.');
+        console.error(error);
+      });
+    }
+  </script>
+</body>
+</html>
